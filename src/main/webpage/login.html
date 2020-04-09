@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title></title>
+    <script src="layui-v2.5.6/layui.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="layui-v2.5.6/css/layui.css"/>
+    <link rel="stylesheet" href="editor/css/editormd.preview.css"/>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="editor/editormd.js"></script>
+    <script src="editor/lib/marked.min.js"></script>
+    <script src="editor/lib/prettify.min.js"></script>
+</head>
+<body><!--顶部导航开始-->
+<div id="nav-top" class="layui-col-md4">
+    <div id="nav-center" class="layui-anim layui-anim-up layui-col-md9 layui-col-md-offset2"><img id="logo" src="img/lmzLog.png" alt=""/>
+</div><!--顶部导航结束-->
+<!--中部标签开始-->
+    <div id="loginwind" class="layui-col-md6 layui-col-md-offset3"></div>
+<!--中部标签结束-->
+<!--返回顶部标签开始-->
+    <div class="layui-anim layui-anim-up" id="backtop">
+        <ul>
+            <li><a href="">联系</a></li>
+        </ul>
+    </div><!--返回顶部标签结束-->
+</div>
+<script> layui.use(['layer', 'form'], function () {
+    var layer = layui.layer,
+        form = layui.form;
+    var $ = layui.$;
+    var options = {
+        // url: "http://localhost:8080/articleMuch/selectArticleMuchByAtitle",
+        // data: {"atitle": "Jsp数据库交互之Cookie"},
+        method: "get",
+        dataType: "json",
+        success: function (data) {
+
+        }
+    };
+    var size = window.innerWidth;
+    listenerScreen(size);
+    $.ajax(options);
+    $(window).resize(function () {
+        var size = window.innerWidth;
+        listenerScreen(size);
+    });
+
+    function listenerScreen(size) {
+        if (size > 1000) {
+            $(".menu-open").hide();
+            $(".menu-close").hide();
+            $("#nav-list").show().addClass("nav-list-show").removeClass("nav-list-hide");
+            $("#authorInfo").show();
+        } else {
+            $("#nav-list").hide().removeClass("nav-list-show").addClass("nav-list-hide");
+            $("#authorInfo").hide();
+            /*打开按钮事件*/
+            $(".menu-open").show();
+        }
+    }
+    $(".menu-open").click(function () {/*隐藏打开按钮*/
+        $(this).fadeOut(100);
+        /*打开列表*/
+        $(".nav-list-hide").show();
+        $(".menu-close").fadeIn(200);
+    });
+    /*关闭按钮事件*/
+    $(".menu-close").click(function () {/*显示打开按钮*/
+        $(".menu-open").fadeIn(200);
+        /*关闭列表*/
+        $("#nav-list").fadeOut(200);
+    });
+});
+</script>
+</body>
+</html>

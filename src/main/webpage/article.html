@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title></title>
+    <script src="layui-v2.5.6/layui.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="layui-v2.5.6/css/layui.css"/>
+    <link rel="stylesheet" href="editor/css/editormd.preview.css"/>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/jquery.cookie.js"></script>
+    <script src="editor/editormd.js"></script>
+    <script src="editor/lib/marked.min.js"></script>
+    <script src="editor/lib/prettify.min.js"></script>
+</head>
+<body><!--顶部导航开始-->
+<div id="nav-top" class="layui-col-md4">
+    <div id="nav-center" class="layui-anim layui-anim-up layui-col-md9 layui-col-md-offset2"><a href="index.html"><img
+            id="logo" src="img/lmzLog.png"
+            alt=""/></a>
+        <div id="nav-list" class="nav-list-show layui-col-md-offset1">
+            <ul class="layui-anim layui-anim-scaleSpring"><img class="menu-close " src="img/close.png" alt=""/>
+                <li><a href="">博客介绍</a></li>
+                <li><a href="">前端教程</a></li>
+                <li><a href="">后端教程</a></li>
+                <li><a href="">其他干货</a></li>
+                <li><a href="">关于作者</a></li>
+                <li><input type="text" class="layui-input" placeholder="html、Jquery、java"
+                           style="font-size: 14px;;border-radius: 20px 0 0 20px;border: none;display: inline-block;width: 145px;height: 38px"/><input
+                        type="button" class="layui-btn layui-btn-primary"
+                        style="margin-left: -5px;border-radius: 0 20px 20px 0;width:65px;height: 38.5px;padding: 0;border: none"
+                        value="搜索"/></li>
+                <li><a href="">登录 </a>|<a href=""> 注册</a></li>
+            </ul>
+        </div>
+        <img class="menu-open" src="img/menu.png" alt=""/></div>
+</div><!--顶部导航结束-->
+<!--中部开始-->
+<div class="layui-row">
+    <div id="container" class="layui-col-md8 layui-col-md-offset2">
+        <div id="test-markdown-view">
+            <textarea id="mdview" style="display: none;"></textarea>
+        </div>
+    </div>
+</div>
+<!--中部结束-->
+<!--返回顶部标签开始-->
+<div class="layui-anim layui-anim-up" id="backtop">
+    <ul>
+        <li><a href="#nav-top">顶部</a></li>
+        <li><a href="">联系</a></li>
+    </ul>
+</div><!--返回顶部标签结束-->
+</div>
+<script> layui.use(['layer', 'form'], function () {
+    var layer = layui.layer,
+        form = layui.form;
+    var $ = layui.$;
+    //使用分隔符
+    var aid = window.location.href.split("=")[1];
+    // console.log(aid);
+    layer.load();
+    var options = {
+        url: "http://localhost:8080/articleMuch/selectArticleByAid",
+        data: {"aid": aid},
+        method: "get",
+        dataType: "json",
+        success: function (data) {
+            if (data!==null) {
+                $("#test-markdown-view").before("<div class=\"article\">\n" +
+                    "            <div class=\"head\">\n" +
+                    "                <div class=\"atitle\">" + data.atitle + "</div>\n" +
+                    "                <div class=\"author\">作者:" + data.author + "</div>\n" +
+                    "                <div class=\"auptime\">-<span>" + data.auptime + "</span></div>\n" +
+                    "                <div class=\"aclass\">-分类:<span>" + data.aclass + "</span></div>\n" +
+                    "            </div>\n" +
+                    "        </div>");
+                $("textarea").val(data.acontent);
+                var testView = editormd.markdownToHTML("test-markdown-view", {
+                    // markdown: ss,//"[TOC]\n### Hello world!\n## Heading 2",另外，您可以动态设置Markdown文本
+                    htmlDecode: true,  //启用/禁用HTML标记编码
+                    htmlDecode: "style,script,iframe" //注意：如果启用，则应过滤一些危险的HTML标记以确保网站安全。
+                });
+                layer.closeAll();
+            }else {
+                layer.closeAll();
+                layer.msg("文章加载失败！",{icon:2})
+            }
+        }
+    };
+    $.ajax(options);
+
+    var size = window.innerWidth;
+    listenerScreen(size);
+    $(window).resize(function () {
+        var size = window.innerWidth;
+        listenerScreen(size);
+    });
+
+    function listenerScreen(size) {
+        if (size > 1000) {
+            $(".menu-open").hide();
+            $(".menu-close").hide();
+            $("#nav-list").show().addClass("nav-list-show").removeClass("nav-list-hide");
+            $("#authorInfo").show();
+        } else {
+            $("#nav-list").hide().removeClass("nav-list-show").addClass("nav-list-hide");
+            $("#authorInfo").hide();
+            /*打开按钮事件*/
+            $(".menu-open").show();
+        }
+    }
+
+    $(".menu-open").click(function () {/*隐藏打开按钮*/
+        $(this).fadeOut(100);
+        /*打开列表*/
+        $(".nav-list-hide").show();
+        $(".menu-close").fadeIn(200);
+    });
+    /*关闭按钮事件*/
+    $(".menu-close").click(function () {/*显示打开按钮*/
+        $(".menu-open").fadeIn(200);
+        /*关闭列表*/
+        $("#nav-list").fadeOut(200);
+    });
+});
+</script>
+</body>
+</html>

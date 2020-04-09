@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title></title>
+    <script src="layui-v2.5.6/layui.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="layui-v2.5.6/css/layui.css"/>
+    <link rel="stylesheet" href="editor/css/editormd.preview.css"/>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="editor/lib/marked.min.js"></script>
+    <script src="editor/lib/prettify.min.js"></script>
+    <link rel="stylesheet" href="editor/css/editormd.min.css"/>
+    <script src="editor/editormd.min.js"></script>
+</head>
+<body>
+<!--顶部导航开始-->
+<div id="nav-top">
+    <div id="nav-center" class="layui-anim layui-anim-up layui-col-md1 layui-col-md-offset1">
+        <img id="logo"
+             src="img/lmzLog.png"
+             alt=""/>
+    </div>
+    <div id="nav-list" class="nav-list-show">
+        <ul id="title-class-tjbtn" class="layui-anim layui-anim-scaleSpring">
+            <img class="menu-close " src="img/close.png" alt=""/>
+            <li><input type="text" id="atitle-input-pc" placeholder="请输入标题" class="atitle-input-pc layui-input"></li>
+            <li><input type="text" id="aclass-input-pc" placeholder="输入分类" class="aclass-input-pc layui-input"></li>
+            <li style="text-align: left">
+                <button style="width: 100px;" id="tjbtn" class="layui-btn layui-btn-primary layui-btn-lg">发布</button>
+            </li>
+            <li style="text-align: left">
+                <button style="width: 100px;" id="ccgbtn" class="layui-btn layui-btn-primary layui-btn-lg">存草稿</button>
+            </li>
+        </ul>
+    </div>
+    <img class="menu-open" src="img/menu.png" alt=""/>
+</div>
+<!--顶部导航结束-->
+<!--中部开始-->
+<div style="height: 60px;width: 100%"></div>
+<div class="layui-col-md12">
+    <div id="editor">
+        <textarea style="display: none"></textarea>
+    </div>
+</div>
+<!--中部结束-->
+<!--返回顶部标签开始-->
+<div class="layui-anim layui-anim-up" id="backtop">
+    <ul>
+        <li><a href="index.html">返回</a></li>
+        <li><a href="#nav-top">顶部</a></li>
+        <li><a href="">联系</a></li>
+    </ul>
+</div><!--返回顶部标签结束-->
+</div>
+<script> layui.use(['layer', 'form'], function () {
+    var layer = layui.layer,
+        form = layui.form;
+    const $ = layui.$;
+    var atitle = sessionStorage.getItem("atitle");
+    var acontent = sessionStorage.getItem("acontent");
+    var aclass = sessionStorage.getItem("aclass");
+    if (atitle !== null & acontent !== null & aclass !== null) {
+        $("#atitle-input-pc").val(atitle);
+        $("textarea").val(acontent);
+        $("#aclass-input-pc").val(aclass);
+    }
+    $("#ccgbtn").click(function () {
+        if (atitle !== "" & aclass !== "" & acontent !== "") {
+            var atitle = $("#atitle-input-pc").val();
+            var acontent = $("textarea").val();
+            var aclass = $("#aclass-input-pc").val();
+            sessionStorage.setItem("atitle", atitle);
+            sessionStorage.setItem("acontent", acontent);
+            sessionStorage.setItem("aclass", aclass);
+            layer.msg("已存入草稿！", {icon: 1})
+        }
+    });
+    $("#tjbtn").click(function () {
+        var atitle = $("#atitle-input-pc").val();
+        var authorid = 1;
+        var acontent = $("textarea").val();
+        var aclass = $("#aclass-input-pc").val();
+        var imgpath = "无";
+        // console.log("标题--》"+atitle+"作者id==》"+authorid+"文章内容==》"+acontent+"分类-->"+aclass+imgpath);
+        if (atitle !== "" & aclass !== "" & acontent !== "") {
+            layer.load(0, {time: 10 * 1000});
+            var options = {
+                headers: {
+                    "content-Type": "application/json;charset=UTF-8",
+                    "Accept": "application/json;charset =UTF-8"
+                },
+                url: "http://localhost:8080/article/addArticle",
+                data: JSON.stringify({
+                    atitle: atitle,
+                    authorid: authorid,
+                    acontent: acontent,
+                    aclass: aclass,
+                    imgpath: imgpath
+                }),
+                method: "POST",
+                success: function (data) {
+                    if (data) {
+                        layer.closeAll();
+                        layer.msg("发布成功！", {icon: 1})
+                    } else {
+                        layer.closeAll();
+                        layer.msg("发布失败！！", {icon: 2})
+                    }
+                }
+            };
+            $.ajax(options);
+        } else {
+            layer.msg("请确认标题、分类、文章内容不为空！")
+        }
+    });
+
+    var size = window.innerWidth;
+    listenerScreen(size);
+    $(window).resize(function () {
+        var size = window.innerWidth;
+        listenerScreen(size);
+    });
+
+    function listenerScreen(size) {
+        if (size > 1000) {
+            $(".menu-open").hide();
+            $(".menu-close").hide();
+            $("#nav-list").show().addClass("nav-list-show").removeClass("nav-list-hide");
+            $("#atitle-input-pc").addClass("atitle-input-pc").removeClass("atitle-input");
+            $("#aclass-input-pc").addClass("aclass-input-pc").removeClass("aclass-input");
+            $("#authorInfo").show();
+        } else {
+            $("#atitle-input-pc").addClass("atitle-input").removeClass("atitle-input-pc");
+            $("#aclass-input-pc").addClass("aclass-input").removeClass("aclass-input-pc");
+            $("#nav-list").hide().removeClass("nav-list-show").addClass("nav-list-hide");
+            $("#authorInfo").hide();
+            /*打开按钮事件*/
+            $(".menu-open").show();
+        }
+    }
+
+    $(".menu-open").click(function () {/*隐藏打开按钮*/
+        $(this).fadeOut(100);
+        $(".menu-close").fadeIn(200);
+        /*打开列表*/
+        $(".nav-list-hide").show();
+    });
+    /*关闭按钮事件*/
+    $(".menu-close").click(function () {/*显示打开按钮*/
+        $(".menu-open").fadeIn(200);
+        /*关闭列表*/
+        $("#nav-list").fadeOut(200);
+    });
+});
+</script>
+<script type="text/javascript">
+    $(function () {
+        var editor = editormd("editor", {
+            width: "100%",
+            height: "830",
+            // markdown: "xxxx",     // dynamic set Markdown text
+            path: "editor/lib/"  // Autoload modules mode, codemirror, marked... dependents libs path
+        });
+    });
+</script>
+</body>
+</html>
